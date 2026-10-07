@@ -1,0 +1,40 @@
+# Ambiente local com paridade de schema (plano de contingência RSK-01).
+#   docker compose up -d db          -> só o PostgreSQL (rode o Django no seu venv)
+#   docker compose up --build        -> PostgreSQL + API em http://localhost:8080/api/docs
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: conectaverde
+      POSTGRES_USER: conectaverde
+      POSTGRES_PASSWORD: conectaverde
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conectaverde"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_DEBUG: "1"
+      DJANGO_SECRET_KEY: dev-docker
+      DJANGO_ALLOWED_HOSTS: "*"
+      DATABASE_URL: postgres://conectaverde:conectaverde@db:5432/conectaverde
+      DEMO_USERS_PASSWORD: ConectaVerde@2026
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py seed_demo &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8080 --reload"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

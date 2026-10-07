@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# Segredos — nunca versionar
+.env
+.env.*
+!.env.example
+*.json.key
+service-account*.json
+
+# Cloud SQL Auth Proxy
+cloud-sql-proxy
+cloud-sql-proxy.exe
+
+# IDEs
+.vscode/
+.idea/
+
+# Documentos e planilhas dos clientes (podem ter dados pessoais) — nunca versionar
+*.xlsx
+*.xls
+*.csv
+*.pdf
+*.docx
+data/
